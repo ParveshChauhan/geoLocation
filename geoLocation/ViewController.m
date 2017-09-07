@@ -25,37 +25,44 @@
     if(_locationManager == nil){
         _locationManager=[[CLLocationManager alloc] init];
         _locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters;
-    [_locationManager requestWhenInUseAuthorization];
+        [_locationManager requestWhenInUseAuthorization];
+        _locationManager.delegate = self;
+    }
     
-    _locationManager.delegate = self;
-        }
     [_locationManager startUpdatingLocation];
+    mapView = [[MKMapView alloc]initWithFrame: CGRectMake(100, 400, 400, 400)];
+    mapView.delegate = self;
+    [self.view addSubview:mapView];
     
-    NSLog(@"in viewdidload ");
-    // Do any additional setup after loading the view, typically from a nib.
 }
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     CLLocation *newLocation = [locations lastObject];
-    
-    NSLog(@"in delegate method ");
 
     [geocoder reverseGeocodeLocation:newLocation completionHandler:^(NSArray *placemarks, NSError *error) {
         
         if (error == nil&& [placemarks count] >0) {
             placeMark = [placemarks lastObject];
-            
-           // NSString *latitude, *longitude, *state, *country;
-            
             self.latitude.text = [NSString  stringWithFormat:@"%f",newLocation.coordinate.latitude];
             self.longitude.text = [NSString stringWithFormat:@"%f",newLocation.coordinate.longitude];
             self.state.text = placeMark.administrativeArea;
             self.country.text = placeMark.country;
+            
             NSLog(@"Latitide%@ \n longitude  %@\n state %@\n contry %@", self.latitude.text,self.longitude.text,self.state.text,self.country.text);
-
+            
+            mapView.centerCoordinate = CLLocationCoordinate2DMake(newLocation.coordinate.latitude, newLocation.coordinate.longitude);
+            mapView.mapType = MKMapTypeHybrid;
+            CLLocationCoordinate2D location;
+            location.latitude = (double) newLocation.coordinate.latitude;
+            location.longitude = (double) newLocation.coordinate.longitude;
+            // for zoom in
+            MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance
+            (newLocation.coordinate, 40, 40);
+            [mapView setRegion:region animated:YES];
         } else {
             NSLog(@"error %@", error.debugDescription);
         }
     }];
+    
     // Turn off the location manager to save power.
     [manager stopUpdatingLocation];
 }
@@ -65,10 +72,6 @@
     NSLog(@"Cannot find the location.");
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 
 @end

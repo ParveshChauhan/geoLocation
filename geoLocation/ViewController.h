@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import <MapKit/MapKit.h>
 
-@interface ViewController : UIViewController<CLLocationManagerDelegate>
-
+@interface ViewController : UIViewController<CLLocationManagerDelegate,MKMapViewDelegate>
+{
+     MKMapView *mapView;
+}
 @property CLLocationManager *locationManager;
 @property (weak, nonatomic) IBOutlet UITextField *latitude;
 @property (weak, nonatomic) IBOutlet UITextField *longitude;
